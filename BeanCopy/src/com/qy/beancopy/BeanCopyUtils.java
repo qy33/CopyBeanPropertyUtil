@@ -26,31 +26,6 @@ import java.util.Set;
  */
 public class BeanCopyUtils {
 	
-	private final static Set<Class<?>> primitiveClasses   = new HashSet<Class<?>>();
-	
-	private final static Set<Class<?>> wrapperClass = new HashSet<Class<?>>();
-	
-	static {
-	    primitiveClasses.add(boolean.class);
-	    primitiveClasses.add(byte.class);
-	    primitiveClasses.add(short.class);
-	    primitiveClasses.add(int.class);
-	    primitiveClasses.add(long.class);
-	    primitiveClasses.add(float.class);
-	    primitiveClasses.add(double.class);
-	    primitiveClasses.add(char.class);
-	    
-	    wrapperClass.add(Boolean.class);
-	    wrapperClass.add(Byte.class);
-	    wrapperClass.add(Short.class);
-	    wrapperClass.add(Integer.class);
-	    wrapperClass.add(Long.class);
-	    wrapperClass.add(Float.class);
-	    wrapperClass.add(Double.class);
-	    wrapperClass.add(Character.class);
-	    wrapperClass.add(String.class);
-	}
-	
 	/**
 	 * 									执行复制
 	 * @param sourceObj					源对象
@@ -111,18 +86,11 @@ public class BeanCopyUtils {
 				}
 				
 				Method writeMethod = copyInfo.getWriteMeghod();
-				if (primitiveClasses.contains(sourceValue.getClass()) || wrapperClass.contains(sourceValue.getClass())) {
-					writeMethod.invoke(target, sourceValue);
-				} else if (sourceValue instanceof Map) {
-					copyMap(sourceValue, target, writeMethod);
-				} else if (sourceValue instanceof Collection) {
-					copyCollection(sourceValue, target, writeMethod);
-				} else {
-					//copy Compound Type, it must have normal constructor
-					if (checkHasNoArgumentsConstructor(sourceValue)) {
-						Object obj = sourceValue.getClass().newInstance();
-						writeMethod.invoke(target, obj);
-						copyProperties(sourceValue, obj);
+				
+				for (AbstractCopy abstractCopy : CopyHandlerFactory.getCopySet()) {
+					boolean bool = abstractCopy.executeCopy(sourceValue, target, writeMethod);
+					if (bool) {
+						break;
 					}
 				}
 			} catch (IllegalArgumentException e) {
@@ -135,29 +103,6 @@ public class BeanCopyUtils {
 				e.printStackTrace();
 			}
 		}
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static void copyMap(Object sourceValue, Object targetObj, Method writeMethod) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Map sourceMap = (Map)sourceValue;
-		Map targetMap;
-		targetMap = (Map)sourceValue.getClass().newInstance();
-		for (Map.Entry mapEntry : (Set<Map.Entry>)sourceMap.entrySet()) {
-			targetMap.put(mapEntry.getKey(), mapEntry.getValue());
-		}
-		writeMethod.invoke(targetObj, targetMap);
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void copyCollection(Object sourceValue, Object targetObj, Method writeMethod) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Collection sourceCollection = (Collection)sourceValue;
-		Collection targetCollection;
-		targetCollection = (Collection)sourceValue.getClass().newInstance();
-		Iterator iterator = sourceCollection.iterator();
-		while(iterator.hasNext()) {
-			targetCollection.add(iterator.next());
-		}
-		writeMethod.invoke(targetObj, targetCollection);
 	}
 	
 	/**
@@ -238,7 +183,13 @@ public class BeanCopyUtils {
 	 * @version V1.0
 	 */
 	public static boolean checkHasNoArgumentsConstructor(Object obj) {
-		Constructor<?>[] constructors = obj.getClass().getConstructors();
+		Constructor<?>[] constructors = null;
+		if (obj instanceof Class) {
+			constructors = ((Class)obj).getConstructors();
+		} else {
+			constructors = obj.getClass().getConstructors();
+		}
+		
 		boolean hasNoArguments = false;
 		for (Constructor<?> constructor : constructors) {
 			if (0 == constructor.getParameterTypes().length) {
