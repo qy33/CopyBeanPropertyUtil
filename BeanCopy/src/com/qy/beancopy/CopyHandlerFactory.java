@@ -3,31 +3,18 @@ package com.qy.beancopy;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.qy.typecopy.CollectionCopy;
-import com.qy.typecopy.CompoundTypeCopy;
-import com.qy.typecopy.MapCopy;
-import com.qy.typecopy.PrimitiveCopy;
-
 public class CopyHandlerFactory {
 	
-/*	private static CopyHandlerFactory handlerFactory;
-*/	
-	private static Set<AbstractCopy> copySet = new HashSet<AbstractCopy>();
+	private static CopyHandlerFactory handlerFactory;
 	
-	static {
-		copySet.add(new PrimitiveCopy());
-		copySet.add(new CollectionCopy());
-		copySet.add(new MapCopy());
-		copySet.add(new CompoundTypeCopy());
-	}
+	private static Set<AbstractCopy> copySet = new HashSet<AbstractCopy>();
 
 	public static Set<AbstractCopy> getCopySet() {
 		return copySet;
 	}
-	 
-/*	
+	
 	private CopyHandlerFactory(){
-		super();
+		
 	}
 	
 	public static CopyHandlerFactory getInstance() {
@@ -39,5 +26,9 @@ public class CopyHandlerFactory {
 			}
 		}
 		return handlerFactory;
-	}*/
+	}
+	
+	public void registerHandler(AbstractCopy copy) { 
+		copySet.add(copy);
+	}
 }

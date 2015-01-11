@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import com.qy.beancopy.AbstractCopy;
+import com.qy.beancopy.BeanCopyUtils;
+import com.qy.beancopy.utils.PrimitiveTypeCheckUtil;
 
 
 public class CollectionCopy extends AbstractCopy{
@@ -20,7 +22,21 @@ public class CollectionCopy extends AbstractCopy{
 		targetCollection = (Collection)sourceValue.getClass().newInstance();
 		Iterator iterator = sourceCollection.iterator();
 		while(iterator.hasNext()) {
-			targetCollection.add(iterator.next());
+			Object valueObj = iterator.next();
+			if (valueObj instanceof Class) {
+				continue;
+			}
+			
+			if (PrimitiveTypeCheckUtil.isPrimitive(valueObj.getClass())) {
+				targetCollection.add(valueObj);
+				continue;
+			} 
+			
+			if (BeanCopyUtils.checkHasNoArgumentsConstructor(valueObj)) {
+				Object obj = valueObj.getClass().newInstance();
+				BeanCopyUtils.copyProperties(valueObj, obj);
+				targetCollection.add(obj);
+			}
 		}
 		writeMethod.invoke(targetObj, targetCollection);
 	}
