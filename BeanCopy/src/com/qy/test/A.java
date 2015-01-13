@@ -1,9 +1,5 @@
-package com.qy.demo;
+package com.qy.test;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +15,16 @@ public class A extends C {
 	private Class<?> mineClass;
 	private List<C> cList;
 	private Map<C,C> cMap;
+	private Map<Map<String,C>, C> nestedMap;
 	
+	public Map<Map<String, C>, C> getNestedMap() {
+		return nestedMap;
+	}
+
+	public void setNestedMap(Map<Map<String, C>, C> nestedMap) {
+		this.nestedMap = nestedMap;
+	}
+
 	public Map<C, C> getcMap() {
 		return cMap;
 	}
@@ -105,21 +110,7 @@ public class A extends C {
 		return "A [a=" + a + ", b=" + b + ", c=" + c + ", list=" + list
 				+ ", a_c=" + a_c + ", map=" + map + ", bigInteger="
 				+ bigInteger + ", mineClass=" + mineClass + ", cList=" + cList
-				+ ", cMap=" + cMap + "]";
-	}
-
-	public static void main(String[] args) {
-		A a = new A();
-		try {
-			BeanInfo beanInfo = Introspector.getBeanInfo(a.getClass());
-			PropertyDescriptor[] descriptors = beanInfo
-					.getPropertyDescriptors();
-			for (PropertyDescriptor p : descriptors) {
-				System.out.println(p.getWriteMethod());
-			}
-		} catch (IntrospectionException e) {
-			e.printStackTrace();
-		}
+				+ ", cMap=" + cMap + ", nestedMap=" + nestedMap + "]";
 	}
 
 }

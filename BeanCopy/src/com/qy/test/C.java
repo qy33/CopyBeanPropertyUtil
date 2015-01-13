@@ -1,4 +1,4 @@
-package com.qy.demo;
+package com.qy.test;
 
 public class C {
 	

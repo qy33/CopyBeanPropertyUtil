@@ -1,4 +1,4 @@
-package com.qy.demo;
+package com.qy.test;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -15,6 +15,7 @@ public class B extends C {
 	private Class<?> mineClass;
 	private List<C> cList;
 	private Map<C,C> cMap;
+	private Map<Map<String,C>, C> nestedMap;
 	
 	public Class<?> getMineClass() {
 		return mineClass;
@@ -97,12 +98,20 @@ public class B extends C {
 		this.cMap = cMap;
 	}
 
+	public Map<Map<String, C>, C> getNestedMap() {
+		return nestedMap;
+	}
+
+	public void setNestedMap(Map<Map<String, C>, C> nestedMap) {
+		this.nestedMap = nestedMap;
+	}
+
 	@Override
 	public String toString() {
 		return "B [a=" + a + ", b=" + b + ", c=" + c + ", list=" + list
 				+ ", a_c=" + a_c + ", map=" + map + ", bigInteger="
 				+ bigInteger + ", mineClass=" + mineClass + ", cList=" + cList
-				+ ", cMap=" + cMap + "]";
+				+ ", cMap=" + cMap + ", nestedMap=" + nestedMap + "]";
 	}
 
 }
